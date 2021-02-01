@@ -127,6 +127,16 @@ const DOM =  {
 
 
 const Utils = {
+    formatAmount(value) {
+        value = Number(value) * 100
+        console.log(value)
+    },
+
+    formatDate(date){
+        const splittedDate = date.split('-')
+        console.log(splittedDate)
+    },
+
     formatCurrency(value) {
         const signal = Number(value) < 0 ? '-' : ''
         value = String(value).replace(/\D/g, "" )
@@ -141,8 +151,52 @@ const Utils = {
 }
 
 const Form = {
+    description: document.querySelector('input#description'),
+    amount: document.querySelector('input#amount'),
+    date: document.querySelector('input#date'),
+
+    getValues() {
+        return {
+            description: Form.description.value,
+            amount: Form.amount.value,
+            date: Form.date.value
+        }
+    },
+
+ 
+    validadeFields() {
+        const {description, amount, date} = Form.getValues()
+        if(description.trim() === "" || 
+        amount.trim() === "" || 
+        date.trim() === "") {
+            throw new Error("Preencha todos os campos")
+        }
+    },
+
+    formatValues() {
+        let {description, amount, date} = Form.getValues()
+        amount = Utils.formatAmount(amount)
+        date = Utils.formatDate(date)
+    },
+
     submit(event) {
       event.preventDefault()
+      try {
+        //verificar se todas as informações foram preenchidas
+        //Form.validadeFields()
+        Form.formatValues()
+            
+            
+        //formatar os dados para salvar
+        //salvar
+        //apagar os dados do formulario
+        //modal feche
+        //atualizar aplicacao
+      } catch (error) {
+            alert(error.message)
+
+      }
+      
     }
 }
 
