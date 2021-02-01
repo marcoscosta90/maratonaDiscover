@@ -20,7 +20,6 @@ const Modal = {
     
 }
 
-
 const Transaction = {
     all: [
         {
@@ -79,19 +78,18 @@ const Transaction = {
     }
 }
 
-//Substituir os dados do HTML com os do JS
-
 const DOM =  {
     transactionsContainer: document.querySelector('#data-table tbody'),
 
     addTransaction(transaction, index){
         
         const tr = document.createElement('tr')
-        tr.innerHTML = DOM.innerHTMLTransaction(transaction)
+        tr.innerHTML = DOM.innerHTMLTransaction(transaction, index)
+        tr.dataset.index = index
         DOM.transactionsContainer.appendChild(tr)
     },
 
-    innerHTMLTransaction(transaction){
+    innerHTMLTransaction(transaction, index){
         const CSSClass = transaction.amount > 0 ? 'income' : 'expense'
         
         const amount = Utils.formatCurrency(transaction.amount)
@@ -101,7 +99,7 @@ const DOM =  {
         <td class="${CSSClass}">${amount}</td>
         <td class="date">${transaction.date}</td>  
         <td>
-            <img src="./assets/minus.svg" alt="Remover transação">
+            <img onClick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
         </td>    
    
         `
@@ -125,7 +123,6 @@ const DOM =  {
     }
 }
 
-
 const Utils = {
     formatAmount(value) {
         value = Number(value) * 100
@@ -134,7 +131,7 @@ const Utils = {
 
     formatDate(date){
         const splittedDate = date.split('-')
-        console.log(splittedDate)
+        return `${splittedDate[2]}/${splittedDate[1]}/${splittedDate[0]}`
     },
 
     formatCurrency(value) {
@@ -177,35 +174,59 @@ const Form = {
         let {description, amount, date} = Form.getValues()
         amount = Utils.formatAmount(amount)
         date = Utils.formatDate(date)
+
+        return {
+            description,
+            amount, 
+            date
+        }
     },
+
+    clearFields() {
+        Form.description.value = ""
+        Form.amount.value = ""
+        Form.date.value = ""
+    },
+
+  
 
     submit(event) {
       event.preventDefault()
       try {
         //verificar se todas as informações foram preenchidas
         //Form.validadeFields()
-        Form.formatValues()
-            
-            
         //formatar os dados para salvar
+        const transaction = Form.formatValues()        
+                   
         //salvar
+        Transaction.add(transaction)
+        Form.clearFields()
+        Modal.close()
+        
         //apagar os dados do formulario
         //modal feche
         //atualizar aplicacao
       } catch (error) {
             alert(error.message)
-
-      }
-      
+      }      
     }
 }
 
+const Storage = {
+    get() {
+        return JSON.parse(localStorage.getItem('dev.finances:transactions')) || []
+    },
+
+    set(transactions)  {
+        localStorage.setItem('dev.finances:transactions', JSON.stringify(transactions))
+    }
+}
+
+
 const App = {
     init() {       
-        Transaction.all.forEach(transaction => {
-            DOM.addTransaction(transaction)
-        })
-        
+        Transaction.all.forEach(DOM.addTransaction)
+                   
         DOM.updateBalance()
 
         },
